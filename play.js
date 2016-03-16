@@ -584,6 +584,35 @@ PlayMusic.prototype.getSharedPlayListEntries = function (opts, callback) {
 };
 
 /**
+ * Move the specified entry before the specified CID.
+ *
+ * @param callback function(err, playlistEntries) - success callback
+ */
+PlayMusic.prototype.movePlayListEntryBefore = function(entryToMove, entryBeforeCid, callback) {
+  var that = this;
+
+  var keysToKeep = ['clientId', 'creationTimestamp', 'deleted', 'id', 'lastModifiedTimestamp', 'playlistId', 'source', 'trackId'];
+
+  for(var entry in entryToMove) {
+    if (keysToKeep.indexOf(entry) == -1)
+      delete entryToMove[entry];
+  }
+
+  entryToMove['followingEntryId'] = entryBeforeCid;
+
+  console.log(JSON.stringify({"mutations": [{"update" : entryToMove}]}));
+
+  this.request({
+    method: "POST",
+    contentType: "application/json",
+    url: this._baseURL + 'plentriesbatch?' + querystring.stringify({alt: "json"}),
+    data: JSON.stringify({"mutations" : [{ "update": entryToMove}]})
+  }, function(err, body) {
+    callback(err ? new Error("error getting moving playlist entry: " + err) : null, body);
+  });
+};
+
+/**
  * Returns info about an All Access album.  Does not work for uploaded songs.
  *
  * @param albumId string All Access album "nid" -- WILL NOT ACCEPT album "id" (requires "T" id, not hyphenated id)
