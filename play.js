@@ -591,6 +591,32 @@ PlayMusic.prototype.getSharedPlayListEntries = function (opts, callback) {
 PlayMusic.prototype.movePlayListEntryBefore = function(entryToMove, entryBeforeCid, callback) {
   var that = this;
 
+  entryToMove = JSON.parse(JSON.stringify(entryToMove)); // clone fo-real
+
+  var keysToKeep = ['clientId', 'creationTimestamp', 'deleted', 'id', 'lastModifiedTimestamp', 'playlistId', 'source', 'trackId'];
+
+  for(var entry in entryToMove) {
+    if (keysToKeep.indexOf(entry) == -1)
+      delete entryToMove[entry];
+  }
+
+  entryToMove['precedingEntryId'] = entryBeforeCid;
+
+  this.request({
+    method: "POST",
+    contentType: "application/json",
+    url: this._baseURL + 'plentriesbatch?' + querystring.stringify({alt: "json"}),
+    data: JSON.stringify({"mutations" : [{ "update": entryToMove}]})
+  }, function(err, body) {
+    callback(err ? new Error("error getting moving playlist entry: " + err) : null, body);
+  });
+};
+
+PlayMusic.prototype.movePlayListEntryAfter = function(entryToMove, entryBeforeCid, callback) {
+  var that = this;
+
+  entryToMove = JSON.parse(JSON.stringify(entryToMove)); // clone fo-real
+
   var keysToKeep = ['clientId', 'creationTimestamp', 'deleted', 'id', 'lastModifiedTimestamp', 'playlistId', 'source', 'trackId'];
 
   for(var entry in entryToMove) {
@@ -599,8 +625,6 @@ PlayMusic.prototype.movePlayListEntryBefore = function(entryToMove, entryBeforeC
   }
 
   entryToMove['followingEntryId'] = entryBeforeCid;
-
-  console.log(JSON.stringify({"mutations": [{"update" : entryToMove}]}));
 
   this.request({
     method: "POST",
