@@ -600,7 +600,7 @@ PlayMusic.prototype.movePlayListEntryBefore = function(entryToMove, entryBeforeC
       delete entryToMove[entry];
   }
 
-  entryToMove['precedingEntryId'] = entryBeforeCid;
+  entryToMove['followingEntryId'] = entryBeforeCid;
 
   this.request({
     method: "POST",
@@ -624,7 +624,7 @@ PlayMusic.prototype.movePlayListEntryAfter = function(entryToMove, entryBeforeCi
       delete entryToMove[entry];
   }
 
-  entryToMove['followingEntryId'] = entryBeforeCid;
+  entryToMove['precedingEntryId'] = entryBeforeCid;
 
   this.request({
     method: "POST",
